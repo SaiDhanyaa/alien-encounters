@@ -1,56 +1,61 @@
-# Simple workflow for deploying static content to GitHub Pages
+# Name of the workflow
 name: Publish Quarto page to GitHub Pages
 
+# When the workflow will be triggered
 on:
-  # Runs on pushes targeting the default branch
+  # Runs on pushes targeting the default branch (e.g., main)
   push:
     branches: ["main"]
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Allows the workflow to be manually triggered from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Permissions required for the GitHub token to perform necessary actions
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read       # Allows reading of the repository contents
+  pages: write         # Allows writing to GitHub Pages
+  id-token: write      # Allows writing the ID token
 
-# Allow one concurrent deployment
+# To ensure only one deployment runs at a time
 concurrency:
-  group: "pages"
-  cancel-in-progress: true
+  group: "pages"       # Groups all page deployments together
+  cancel-in-progress: true  # Cancels any in-progress deployment when a new one starts
 
 jobs:
-  # Single deploy job since we're just deploying
+  # Defines the job to publish the site
   publish-site:
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/gchism94/r_gh_actions:latest
+      name: github-pages          # The environment for deployment
+      url: ${{ steps.deployment.outputs.page_url }}  # URL of the deployed site
+    runs-on: ubuntu-latest         # Uses the latest Ubuntu runner provided by GitHub
+    
     steps:
+      # Step 1: Checks out the latest code from the repository
       - name: Checkout
         uses: actions/checkout@v3
       
+      # Step 2: Install any missing R packages required for rendering
       - name: Install Missing Packages
         run: |
           missing = checklist::install_missing_pkgs(dir = "./", glob = "*.qmd")
         shell: Rscript {0}
 
+      # Step 3: Render the Quarto site
       - name: Build site 🔧
         run: |
           quarto render
       
+      # Step 4: Set up the GitHub Pages deployment
       - name: Setup Pages
         uses: actions/configure-pages@v3
       
+      # Step 5: Upload the rendered site as an artifact
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4  # Updated to v4
+        uses: actions/upload-pages-artifact@v4
         with:
-          # Upload entire repository
-          path: '_site/'
+          path: '_site/'  # Path to the built site that needs to be deployed
       
+      # Step 6: Deploy the site to GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2  # Updated to v2
+        uses: actions/deploy-pages@v2
