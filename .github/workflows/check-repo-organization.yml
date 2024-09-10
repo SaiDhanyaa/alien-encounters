@@ -69,8 +69,11 @@ jobs:
                 "data/*.csv", "data/*.xls", "data/*.xlsx", "data/*.RDS", "data/README.md", "data/*.qmd",
                 "README.md", "project-01.Rproj",
                 "index.qmd", "presentation.qmd", "proposal.qmd", "about.qmd", "_quarto.yml", "data/*.scss",
-                "_site/*"  # Add this line to allow the _site folder and its contents
+                "_site/*",  # To allow all files in _site
+                "presentation_files/figure-html/*"  # To allow all files in the presentation_files/figure-html directory
               )
             )
           })
+  shell: Rscript {0}
+
         shell: Rscript {0}
